@@ -113,12 +113,12 @@ function AppContent() {
             <p className="text-lg text-gray-600 mb-8">
               Create token vesting streams, manage existing streams, and claim your tokens
             </p>
-            <button
+            {/* <button
               onClick={login}
               className="px-6 py-3 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700"
             >
               Connect Wallet
-            </button>
+            </button> */}
           </div>
         )}
       </main>
