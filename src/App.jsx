@@ -8,16 +8,94 @@ import { useVestingContract } from './hooks/useVestingContract';
 import './App.css';
 
 function AppContent() {
-  const { login, logout, authenticated, user } = usePrivy();
+    // Hyper Liquid network configuration
+const HYPER_LIQUID_NETWORK = {
+  chainId: '0x3e6', // Hyper Liquid mainnet chain ID (23294 in decimal)
+  chainName: 'Hyper Liquid',
+  nativeCurrency: {
+    name: 'Hype',
+    symbol: 'HYPE',
+    decimals: 18,
+  },
+  rpcUrls: ['https://rpc.hyperliquid-testnet.xyz/evm'],
+  blockExplorerUrls: ['https://app.hyperliquid-testnet.xyz/explorer/'],
+};
+
+
+  const { login, logout, authenticated, user, ready } = usePrivy();
   const { wallets } = useWallets();
+  const [isCorrectNetwork, setIsCorrectNetwork] = useState(false);
+  const [isSwitching, setIsSwitching] = useState(false);
   const [activeTab, setActiveTab] = useState('create');
   const [streams, setStreams] = useState([]);
   const { getRecipientStreams, getStreamDetails } = useVestingContract();
 
-  useEffect(() => {
-    if (authenticated && wallets.length > 0) {
-      loadStreams();
+
+ // Check if user is connected to Hyper Liquid network
+  const checkNetwork = async () => {
+    if (!wallets || wallets.length === 0) return false;
+
+    try {
+      const wallet = wallets[0];
+      const provider = await wallet.getEthersProvider();
+      const network = await provider.getNetwork();
+      
+      // Convert chainId to hex for comparison
+      const currentChainId = `0x${network.chainId.toString(16)}`;
+      return currentChainId === HYPER_LIQUID_NETWORK.chainId;
+    } catch (error) {
+      console.error('Error checking network:', error);
+      return false;
     }
+  };
+
+
+  // Switch to Hyper Liquid network
+  const switchToHyperLiquid = async () => {
+    if (!wallets || wallets.length === 0) return;
+
+    setIsSwitching(true);
+    try {
+      const wallet = wallets[0];
+      
+      // Try to switch network, if not present, add it
+      try {
+        await wallet.switchChain(HYPER_LIQUID_NETWORK.chainId);
+      } catch (switchError) {
+        // This error code indicates that the chain has not been added to MetaMask
+        if (switchError.code === 4902) {
+          await wallet.addChain(HYPER_LIQUID_NETWORK);
+        } else {
+          throw switchError;
+        }
+      }
+      
+      // Verify the switch was successful
+      const isNowCorrect = await checkNetwork();
+      setIsCorrectNetwork(isNowCorrect);
+    } catch (error) {
+      console.error('Error switching network:', error);
+      alert('Failed to switch to Hyper Liquid network. Please switch manually.');
+    } finally {
+      setIsSwitching(false);
+    }
+  };
+
+
+  useEffect(() => {
+    const verifyNetwork = async () => {
+    
+    if (authenticated && wallets.length > 0) {
+      const isCorrect = await checkNetwork();
+      setIsCorrectNetwork(isCorrect);
+      if (!isCorrect) {
+          // Auto-prompt to switch network
+          switchToHyperLiquid();
+      }
+      loadStreams();
+     }
+    }
+    verifyNetwork
   }, [authenticated, wallets]);
 
   const loadStreams = async () => {
@@ -42,7 +120,7 @@ function AppContent() {
           <h1 className="text-2xl font-bold text-gray-900">Hyper- Vesting</h1>
           {authenticated ? (
             <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-700">
+              <span className="text-sm text-gray-700 px-2 ">
                 {wallets[0]?.address.slice(0, 4)}...{wallets[0]?.address.slice(-6)}
               </span>
               <button

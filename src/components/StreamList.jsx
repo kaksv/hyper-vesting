@@ -62,11 +62,11 @@ export default function StreamList({ streams, onUpdate }) {
             <div>
               <h3 className="text-lg font-medium">Stream #{stream.id}</h3>
               <p className="text-sm text-gray-500">
-                From: {stream.creator.slice(0, 8)}...{stream.creator.slice(-6)}
+                From: {stream.creator.slice(0, 3)}...{stream.creator.slice(-6)}
               </p>
               <p className="text-sm text-gray-500">
                 Token: {stream.tokenAddress === '0x0000000000000000000000000000000000000000' 
-                  ? 'ETH' 
+                  ? 'HYPE' 
                   : stream.tokenAddress.slice(0, 8)}...{stream.tokenAddress.slice(-6)}
               </p>
             </div>

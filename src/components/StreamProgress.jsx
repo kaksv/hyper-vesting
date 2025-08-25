@@ -1,17 +1,11 @@
 import { useEffect, useState } from 'react';
 
 export default function StreamProgress({ 
-  // eslint-disable-next-line react/prop-types
   totalAmount, 
-  // eslint-disable-next-line react/prop-types
   claimedAmount, 
-  // eslint-disable-next-line react/prop-types
   startTime, 
-  // eslint-disable-next-line react/prop-types
   cliffDuration, 
-  // eslint-disable-next-line react/prop-types
   streamDuration, 
-  // eslint-disable-next-line react/prop-types
   isCancelled 
 }) {
   const [currentTime, setCurrentTime] = useState(Math.floor(Date.now() / 1000));
