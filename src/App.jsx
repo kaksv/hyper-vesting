@@ -39,11 +39,11 @@ function AppContent() {
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white shadow">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-gray-900">Token Vesting Platform</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Hyper- Vesting</h1>
           {authenticated ? (
             <div className="flex items-center space-x-4">
               <span className="text-sm text-gray-700">
-                {wallets[0]?.address.slice(0, 8)}...{wallets[0]?.address.slice(-6)}
+                {wallets[0]?.address.slice(0, 4)}...{wallets[0]?.address.slice(-6)}
               </span>
               <button
                 onClick={logout}

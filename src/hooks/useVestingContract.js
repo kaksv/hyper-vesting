@@ -1,20 +1,24 @@
 import { useState, useCallback } from 'react';
 import { useWallets } from '@privy-io/react-auth';
-import { ethers } from 'ethers';
-import TokenVestingABI from '../contracts/TokenVestingABI.json';
+import { ethers, parseEther } from 'ethers';
+import {TokenVestingABI} from '../contracts/TokenVestingABI';
 
-const CONTRACT_ADDRESS = import.meta.env.VITE_CONTRACT_ADDRESS;
+
+const CONTRACT_ADDRESS = "0x5950FcC9Df77655e675c4bD959342a3c06ef905a" ;
 
 export function useVestingContract() {
   const { wallets } = useWallets();
   const [contract, setContract] = useState(null);
 
-  const getContract = useCallback(() => {
-    if (!wallets.length) return null;
-    
-    const provider = new ethers.BrowserProvider(wallets[0].provider);
-    const signer = provider.getSigner();
+  const getContract = useCallback(async() => {
+    if (!wallets.length) {
+      return null
+    }else{
+
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    const signer =  await provider.getSigner();
     return new ethers.Contract(CONTRACT_ADDRESS, TokenVestingABI, signer);
+    }
   }, [wallets]);
 
   const createStream = async (
@@ -26,13 +30,17 @@ export function useVestingContract() {
     streamDuration,
     isNative = false
   ) => {
-    const vestingContract = getContract();
-    const value = isNative ? ethers.parseEther(totalAmount) : 0;
+
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    const signer =  await provider.getSigner();
+    const vestingContract = new ethers.Contract(CONTRACT_ADDRESS, TokenVestingABI, signer);
+    // const vestingContract = getContract();
+    const value = isNative ? parseEther(totalAmount) : 0;
     
     const tx = await vestingContract.createStream(
       recipient,
       tokenAddress,
-      ethers.parseEther(totalAmount),
+      parseEther(totalAmount),
       startTime,
       cliffDuration,
       streamDuration,
@@ -43,24 +51,32 @@ export function useVestingContract() {
   };
 
   const claimTokens = async (streamId) => {
-    const vestingContract = getContract();
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    const signer =  await provider.getSigner();
+    const vestingContract = new ethers.Contract(CONTRACT_ADDRESS, TokenVestingABI, signer);
     const tx = await vestingContract.claimTokens(streamId);
     return await tx.wait();
   };
 
   const cancelStream = async (streamId) => {
-    const vestingContract = getContract();
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    const signer =  await provider.getSigner();
+    const vestingContract = new ethers.Contract(CONTRACT_ADDRESS, TokenVestingABI, signer);
     const tx = await vestingContract.cancelStream(streamId);
     return await tx.wait();
   };
 
   const getRecipientStreams = async (address) => {
-    const vestingContract = getContract();
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    const signer =  await provider.getSigner();
+    const vestingContract = new ethers.Contract(CONTRACT_ADDRESS, TokenVestingABI, signer);
     return await vestingContract.getRecipientStreams(address);
   };
 
   const getStreamDetails = async (streamId) => {
-    const vestingContract = getContract();
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    const signer =  await provider.getSigner();
+    const vestingContract = new ethers.Contract(CONTRACT_ADDRESS, TokenVestingABI, signer);
     const details = await vestingContract.getStreamDetails(streamId);
     
     return {
