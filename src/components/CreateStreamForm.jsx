@@ -46,6 +46,7 @@ export default function CreateStreamForm({ onStreamCreated }) {
         isNativeToken: false,
       });
       
+      
       onStreamCreated();
       alert('Stream created successfully!');
     } catch (error) {
